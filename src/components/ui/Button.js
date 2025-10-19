@@ -1,14 +1,27 @@
 import React from 'react';
-import { Pressable, Text } from 'react-native';
+import { TouchableOpacity, StyleSheet } from 'react-native';
+import Text from './Text';
 
-/**
- * Minimal UI Button (no styling).
- * Students will style this via 'styles/styles.js'.
- */
-export default function Button({ onPress, children, style, ...rest }) {
+export default function Button({ title, onPress, style }) {
   return (
-    <Pressable onPress={onPress} style={style} {...rest}>
-      <Text>{children}</Text>
-    </Pressable>
+    <TouchableOpacity style={[styles.button, style]} onPress={onPress}>
+      <Text style={styles.text}>{title}</Text>
+    </TouchableOpacity>
   );
 }
+
+const styles = StyleSheet.create({
+  button: {
+    backgroundColor: '#007bff',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 5,
+    marginHorizontal: 2,
+  },
+  text: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+});

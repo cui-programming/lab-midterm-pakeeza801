@@ -1,24 +1,14 @@
-import React, { useState } from 'react';
-import { View, FlatList, Text } from 'react-native'; // You may switch Text to ui/Text later
-import { styles } from '../../styles/styles';
-import { initialAzkaar } from '../../data/azkaar';
+import React from 'react';
+import { View, FlatList, StyleSheet } from 'react-native';
+import { Text, Button } from '../ui';
 
-/**
- * Custom/TasbihList
- * Renders a FlatList of azkaar with their counts.
- * NOTE: Increment/Decrement buttons are intentionally NOT implemented.
- * Students will add + and - controls using UI/Button and update state accordingly.
- */
-export default function TasbihList() {
-  const [items, setItems] = useState(initialAzkaar);
-
-  // HINT ONLY (do not complete): you will need handlers like increment(id) / decrement(id)
-
+export default function TasbihList({ tasbihs, onUpdateCount }) {
   const renderItem = ({ item }) => (
     <View style={styles.itemRow}>
-      <Text style={styles.itemName}>{item.phrase}</Text>
-      <Text style={styles.counter}>{item.count}</Text>
-      {/* TODO: Add increment/decrement buttons here using ui/Button */}
+      <Text style={styles.itemText}>{item.phrase}</Text>
+      <Text style={styles.itemCount}>{item.count}</Text>
+      <Button title="-" onPress={() => onUpdateCount(item.id, -1)} />
+      <Button title="+" onPress={() => onUpdateCount(item.id, 1)} />
     </View>
   );
 
@@ -26,10 +16,30 @@ export default function TasbihList() {
     <View style={styles.section}>
       <Text style={styles.sectionTitle}>Tasbih Counter</Text>
       <FlatList
-        data={items}
-        keyExtractor={(it) => it.id}
+        data={tasbihs}
+        keyExtractor={(item) => item.id}
         renderItem={renderItem}
+        style={{ width: '100%' }}
       />
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  section: {
+    padding: 15,
+    backgroundColor: '#f0f4c3',
+    borderRadius: 8,
+    marginBottom: 10,
+    width: '100%',
+  },
+  sectionTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 10 },
+  itemRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  itemText: { flex: 2, fontSize: 16 },
+  itemCount: { flex: 1, textAlign: 'center', fontSize: 16 },
+});

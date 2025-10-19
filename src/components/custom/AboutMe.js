@@ -1,17 +1,28 @@
 import React from 'react';
-import { View, Text } from 'react-native'; // TODO: replace Text with ui/Text after export
-import { styles } from '../../styles/styles';
+import { View, StyleSheet } from 'react-native';
+import { Text } from '../ui';
 
-/**
- * Custom/AboutMe
- * Shows name and registration number at the top.
- * Props: name (string), regNo (string)
- */
 export default function AboutMe({ name, regNo }) {
   return (
-    <View style={styles.header}>
-      <Text style={styles.headerText}>{name}</Text>
-      <Text style={styles.headerText}>{regNo}</Text>
+    <View style={styles.container}>
+      <Text style={styles.text}>{name}</Text>
+      <Text style={styles.text}>{regNo}</Text>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: '#e0f7fa',
+    padding: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginBottom: 10,
+    width: '100%',
+  },
+  text: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+});
