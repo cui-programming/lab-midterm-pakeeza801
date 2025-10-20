@@ -1,44 +1,112 @@
-import React, { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
-import { Text } from './src/components/ui';
 
-import AboutMe from './src/components/custom/AboutMe';
-import TeacherMessage from './src/components/custom/TeacherMessage';
-import TasbihList from './src/components/custom/TasbihList';
-import SearchAndAdd from './src/components/custom/SearchAndAdd';
+import React, { useState, useMemo } from 'react';
+import { SafeAreaView, ScrollView, Alert } from 'react-native';
 
-const STUDENT_NAME = 'Pakeeza Gul';
-const REG_NO = 'SP23-BSE-071';
-const initialAzkaar = [
-  { id: '1', phrase: 'SubhānAllāh', count: 0 },
-  { id: '2', phrase: 'Alhamdullilāh', count: 0 },
-  { id: '3', phrase: 'Allāhu Akbar', count: 0 },
-  { id: '4', phrase: 'Lā ilāha illā Allāh', count: 0 },
-  { id: '5', phrase: 'Astaghfirullāh', count: 0 },
-];
 
-export default function App() {
-  const [tasbihs, setTasbihs] = useState(initialAzkaar);
+import { MY_NAME, MY_REG_NO } from './src/config/student.js'; 
+import { initialTasbihs } from './src/constants/data.js';
 
-  const handleCountUpdate = (id, change) => {
-    setTasbihs(prev =>
-      prev.map(t => (t.id === id ? { ...t, count: t.count + change } : t))
+
+import { styles } from './src/styles/styles.js';
+
+import Text from './src/components/ui/Text.js';
+import View from './src/components/ui/View.js';
+
+import TeacherMessage from './src/components/custom/TeacherMessage.js';
+import SearchAndAdd from './src/components/custom/SearchAndAdd.js';
+import CounterItem from './src/components/custom/CounterItem.js';
+
+const App = () => {
+  const [tasbihs, setTasbihs] = useState(initialTasbihs);
+  const [searchFilter, setSearchFilter] = useState('');
+
+  
+  const updateCount = (id, delta) => {
+    setTasbihs(prevTasbihs =>
+      prevTasbihs.map(item =>
+        item.id === id ? { ...item, count: Math.max(0, item.count + delta) } : item
+      )
     );
   };
 
+  const handleIncrement = (id) => updateCount(id, 1);
+  const handleDecrement = (id) => updateCount(id, -1);
+
+  
+  const handleAddPhrase = (name) => {
+    const exists = tasbihs.some(item => item.name.toLowerCase() === name.toLowerCase());
+    if (exists) {
+      Alert.alert(`Phrase Exists`, `'${name}' is already in the list.`);
+      return;
+    }
+
+    const newId = tasbihs.length > 0 ? Math.max(...tasbihs.map(t => t.id)) + 1 : 1;
+    const newTasbih = { id: newId, name, count: 0 };
+    setTasbihs(prevTasbihs => [...prevTasbihs, newTasbih]);
+  };
+
+  const handleSearchChange = (filter) => {
+    setSearchFilter(filter.toLowerCase());
+  };
+
+  const filteredTasbihs = useMemo(() => {
+    if (!searchFilter) {
+      return tasbihs;
+    }
+    return tasbihs.filter(item =>
+      item.name.toLowerCase().includes(searchFilter)
+    );
+  }, [tasbihs, searchFilter]);
+
+  
   return (
-    <View style={styles.container}>
-      <Text style={styles.appTitle}> App is Working!</Text>
+    <SafeAreaView style={styles.appContainer}>
+      <ScrollView>
+        
+        <Text style={{ ...styles.cardHeader, alignSelf: 'center', fontSize: 28, fontWeight: '900', color: styles.baseText.color }}>
+          My Tasbih App 
+        </Text>
 
-      <AboutMe name={STUDENT_NAME} regNo={REG_NO} />
-      <TeacherMessage />
-      <TasbihList tasbihs={tasbihs} onUpdateCount={handleCountUpdate} />
-      <SearchAndAdd />
-    </View>
+    
+        <View style={styles.personalHeaderContainer}>
+            <Text style={styles.personalHeaderText}>{"Pakeeza Gul"}</Text>
+            <Text style={styles.personalHeaderText}>{"SP23-BSE-071"}</Text>
+        </View>
+
+      
+        <View style={[styles.card, styles.aboutMeCard]}>
+          <Text style={styles.cardHeader}>About Me</Text>
+          <Text style={styles.cardBodyText}>Hello! I'm learning React and building my own Tasbih Counter app.</Text>
+        </View>
+
+        
+        <TeacherMessage /> 
+
+        
+        <SearchAndAdd
+          onAddPhrase={handleAddPhrase}
+          onSearchChange={handleSearchChange}
+        />
+
+    
+        <View style={styles.card}>
+          <Text style={styles.cardHeader}>Tasbih Counter</Text>
+          {filteredTasbihs.map((item) => (
+            <CounterItem
+              key={item.id}
+              name={item.name}
+              count={item.count}
+              onIncrement={() => handleIncrement(item.id)}
+              onDecrement={() => handleDecrement(item.id)}
+            />
+          ))}
+          {filteredTasbihs.length === 0 && searchFilter.length > 0 && (
+            <Text style={{ textAlign: 'center', padding: 10 }}>No matching phrases found.</Text>
+          )}
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
-}
+};
 
-const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: '#fff' },
-  appTitle: { fontSize: 22, fontWeight: 'bold', textAlign: 'center', marginBottom: 20 },
-});
+export default App;
